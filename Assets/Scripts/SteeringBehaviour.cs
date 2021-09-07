@@ -2,16 +2,6 @@
 
 public abstract class SteeringBehaviour : MonoBehaviour
 {
-	[SerializeField]
-	protected bool showDebugLines = true;
-	public bool ShowDebugLines
-	{
-		get
-		{
-			return showDebugLines;
-		}
-	}
-
 	protected Vector3 desiredVelocity;
 	protected Vector3 steeringVelocity;
 

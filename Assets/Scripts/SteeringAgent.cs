@@ -31,6 +31,10 @@ public class SteeringAgent : MonoBehaviour
 		}
 	}
 
+	[SerializeField]
+	protected bool showDebugLines = true;
+
+
 	private List<SteeringBehaviour> steeringBehvaiours = new List<SteeringBehaviour>();
 
 	/// <summary>
@@ -65,26 +69,17 @@ public class SteeringAgent : MonoBehaviour
 	/// </summary>
 	protected virtual void CooperativeArbitration()
 	{
-		bool showDebugLines = false;
 		Vector3 steeringVelocity = Vector3.zero;
 		
 		GetComponents<SteeringBehaviour>(steeringBehvaiours);
 		foreach (SteeringBehaviour currentBehaviour in steeringBehvaiours)
 		{
-			if(currentBehaviour.enabled)
+			if (currentBehaviour.enabled)
 			{
 				steeringVelocity += currentBehaviour.UpdateBehaviour(this);
-				showDebugLines |= currentBehaviour.ShowDebugLines;
-			}
-		}
 
-		// Debug lines in scene view
-		if (showDebugLines)
-		{
-			Debug.DrawRay(transform.position, CurrentVelocity, Color.green);
-			foreach (SteeringBehaviour currentBehaviour in steeringBehvaiours)
-			{
-				if (currentBehaviour.enabled)
+				// Debug lines in scene view
+				if (showDebugLines)
 				{
 					currentBehaviour.DebugDraw();
 				}
@@ -92,8 +87,8 @@ public class SteeringAgent : MonoBehaviour
 		}
 
 		// Set final velocity
-		CurrentVelocity += LimitSteering(steeringVelocity, MaxSteering);
-		CurrentVelocity = LimitVelocity(CurrentVelocity, maxSpeed);
+		CurrentVelocity += Helper.LimitVector(steeringVelocity, MaxSteering);
+		CurrentVelocity = Helper.LimitVector(CurrentVelocity, maxSpeed);
 	}
 
 	/// <summary>
@@ -141,52 +136,4 @@ public class SteeringAgent : MonoBehaviour
 			transform.up = Vector3.Normalize(new Vector3(CurrentVelocity.x, CurrentVelocity.y, 0.0f));
 		}
 	}
-
-	#region Static Helper Functions
-	/// <summary>
-	/// Limits the velocity vector to the maxSpeed
-	/// </summary>
-	/// <param name="velocity">Velocity to limit</param>
-	/// <param name="maxSpeed">Amount to limit to</param>
-	/// <returns>New Vector that has been limited</returns>
-	static public Vector3 LimitVelocity(Vector3 velocity, float maxSpeed)
-	{
-		// This limits the velocity to max speed. sqrMagnitude is used rather than magnitude as in magnitude a square root must be computed which is a slow operation.
-		// By using sqrMagnitude and comparing with maxSpeed squared we can get around using the expensive square root operation.
-		if (velocity.sqrMagnitude > maxSpeed * maxSpeed)
-		{
-			velocity.Normalize();
-			velocity *= maxSpeed;
-		}
-		return velocity;
-	}
-
-	/// <summary>
-	/// Limits the steering vector to the maxSteering
-	/// </summary>
-	/// <param name="steeringVelocity">Steering velocity to limit</param>
-	/// <param name="maxSteering">Amount to limit to</param>
-	/// <returns>New Vector that has been limited</returns>
-	static public Vector3 LimitSteering(Vector3 steeringVelocity, float maxSteering)
-	{
-		// This limits the velocity to max steering. sqrMagnitude is used rather than magnitude as in magnitude a square root must be computed which is a slow operation.
-		// By using sqrMagnitude and comparing with maxSteering squared we can get around using the expensive square root operation.
-		if (steeringVelocity.sqrMagnitude > maxSteering * maxSteering)
-		{
-			steeringVelocity.Normalize();
-			steeringVelocity *= maxSteering;
-		}
-		return steeringVelocity;
-	}
-
-	/// <summary>
-	/// Returns the mouse position in 2d space
-	/// </summary>
-	/// <returns>The mouse position in 2d space</returns>
-	static public Vector3 GetMousePosition()
-	{
-		Vector3 temp = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		return new Vector3(temp.x, temp.y, 0.0f);
-	}
-	#endregion
 }
