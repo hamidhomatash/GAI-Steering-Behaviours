@@ -2,6 +2,13 @@
 
 public abstract class SteeringBehaviour : MonoBehaviour
 {
+	/// <summary>
+	/// Shows debug lines in scene view to help debug issues with creating steering behaviours.
+	/// NOTE: [field: SerializeField] exposes a C# property to Unity's inspector which is useful to toggle at runtime
+	/// </summary>
+	[field: SerializeField]
+	public bool ShowDebugLines { get; protected set; } = true;
+
 	protected Vector3 desiredVelocity;
 	protected Vector3 steeringVelocity;
 
@@ -14,16 +21,35 @@ public abstract class SteeringBehaviour : MonoBehaviour
 
 	protected virtual void Start()
 	{
-		// Annoyingly this is needed for the enabled bool flag to work in Unity. A MonoBehaviour must now have one of the following
+		// Annoyingly this is needed for the enabled bool to work in Unity. A MonoBehaviour must now have one of the following
 		// to activate this: Start(), Update(), FixedUpdate(), LateUpdate(), OnGUI(), OnDisable(), OnEnabled()
 	}
 
 	/// <summary>
 	/// Draws debug info that is helpful to see what might be happening
 	/// </summary>
-	public virtual void DebugDraw()
+	public virtual void DebugDraw(SteeringAgent steeringAgent)
 	{
 		Debug.DrawRay(transform.position, desiredVelocity, Color.red);
-		Debug.DrawRay(transform.position, steeringVelocity, Color.blue);
+		Debug.DrawRay(transform.position, steeringAgent.CurrentVelocity, Color.green);
+		Debug.DrawRay(transform.position + steeringAgent.CurrentVelocity, steeringVelocity, Color.blue);
+	}
+
+	/// <summary>
+	/// Draws a circle fused in debugging
+	/// </summary>
+	/// <param name="position">Position of centre of circle</param>
+	/// <param name="radius">Radius of the circle</param>
+	/// <param name="lineCount">Number of lines used to draw the circle (More lines = smoother circle)</param>
+	public virtual void DebugDrawCircle(Vector3 position, float radius, int lineCount = 12)
+	{
+		for(int lineIndex = 0; lineIndex < lineCount; ++ lineIndex)
+		{
+			float firstAngle = ((float)lineIndex / (float)lineCount) * (2.0f * Mathf.PI);
+			float secondAngle = ((float)(lineIndex + 1) / (float)lineCount) * (2.0f * Mathf.PI);
+			Vector3 firstPoint = new Vector3(Mathf.Cos(firstAngle), Mathf.Sin(firstAngle), 0.0f) * radius;
+			Vector3 secondPoint = new Vector3(Mathf.Cos(secondAngle), Mathf.Sin(secondAngle), 0.0f) * radius;
+			Debug.DrawLine(firstPoint + position, secondPoint + position, Color.magenta);
+		}
 	}
 }

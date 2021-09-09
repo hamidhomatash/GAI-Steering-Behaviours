@@ -3,49 +3,31 @@ using UnityEngine;
 
 public class SteeringAgent : MonoBehaviour
 {
-	[SerializeField]
-	protected float maxSpeed = 400.0f;
-
 	/// <summary>
 	/// Returns the maximum speed the agent can have
+	/// NOTE: [field: SerializeField] exposes a C# property to Unity's inspector which is useful to toggle at runtime
 	/// </summary>
-	public float MaxSpeed
-	{
-		get
-		{
-			return maxSpeed;
-		}
-	}
-
-	[SerializeField]
-	protected float maxSteering = 10.0f;
+	[field: SerializeField]
+	public float MaxSpeed { get; protected set; } = 400.0f;
 
 	/// <summary>
 	/// Returns the maximum steering amount that can be applied
+	/// NOTE: [field: SerializeField] exposes a C# property to Unity's inspector which is useful to toggle at runtime
 	/// </summary>
-	public float MaxSteering
-	{
-		get
-		{
-			return maxSteering;
-		}
-	}
-
-	[SerializeField]
-	protected bool showDebugLines = true;
-
-
-	private List<SteeringBehaviour> steeringBehvaiours = new List<SteeringBehaviour>();
+	[field: SerializeField]
+	public float MaxSteering { get; protected set; } = 100.0f;
 
 	/// <summary>
 	/// Returns the current velocity of the Agent
+	/// NOTE: [field: SerializeField] exposes a C# property to Unity's inspector which is useful to toggle at runtime
 	/// </summary>
-	public Vector3 CurrentVelocity
-	{
-		get;
-		protected set;
-	}
-	
+	public Vector3 CurrentVelocity	{ get; protected set; }
+
+	/// <summary>
+	/// Stores a list of all steering behaviours that are on a SteeringAgent GameObject, regardless if they are enabled or not
+	/// </summary>
+	private List<SteeringBehaviour> steeringBehvaiours = new List<SteeringBehaviour>();
+
 	/// <summary>
 	/// Called once per frame
 	/// </summary>
@@ -74,21 +56,21 @@ public class SteeringAgent : MonoBehaviour
 		GetComponents<SteeringBehaviour>(steeringBehvaiours);
 		foreach (SteeringBehaviour currentBehaviour in steeringBehvaiours)
 		{
-			if (currentBehaviour.enabled)
+			if(currentBehaviour.enabled)
 			{
 				steeringVelocity += currentBehaviour.UpdateBehaviour(this);
 
-				// Debug lines in scene view
-				if (showDebugLines)
+				// Show debug lines in scene view
+				if (currentBehaviour.ShowDebugLines)
 				{
-					currentBehaviour.DebugDraw();
+					currentBehaviour.DebugDraw(this);
 				}
 			}
 		}
 
 		// Set final velocity
 		CurrentVelocity += Helper.LimitVector(steeringVelocity, MaxSteering);
-		CurrentVelocity = Helper.LimitVector(CurrentVelocity, maxSpeed);
+		CurrentVelocity = Helper.LimitVector(CurrentVelocity, MaxSpeed);
 	}
 
 	/// <summary>

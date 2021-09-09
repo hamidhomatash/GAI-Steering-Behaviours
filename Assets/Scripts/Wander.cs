@@ -2,21 +2,25 @@
 
 public class Wander : SteeringBehaviour
 {
-    /// <summary>
-    /// Controls how large the imaginary circle is
-    /// </summary>
-    [SerializeField]
-    protected float circleRadius = 100.0f;
+	/// <summary>
+	/// Controls how large the imaginary circle is
+	/// NOTE: [SerializeField] exposes a C# variable to Unity's inspector without making it public. Useful for encapsulating code
+	/// while still giving access to the Unity inspector
+	/// </summary>
+	[SerializeField]
+    protected float circleRadius = 150.0f;
 
-    /// <summary>
-    /// Controls how far from the agent position should the centre of the circle be
-    /// </summary>
-    [SerializeField]
-    protected float circleDistance = 50.0f;
+	/// <summary>
+	/// Controls how far from the agent position should the centre of the circle be
+	/// NOTE: [SerializeField] exposes a C# variable to Unity's inspector without making it public. Useful for encapsulating code
+	/// while still giving access to the Unity inspector
+	/// </summary>
+	[SerializeField]
+    protected float circleDistance = 250.0f;
 
 	public override Vector3 UpdateBehaviour(SteeringAgent steeringAgent)
 	{
-        // Implement me
+		// Implement Me!
 		return steeringVelocity;
 	}
 }
