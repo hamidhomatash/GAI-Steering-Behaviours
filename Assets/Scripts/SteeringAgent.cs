@@ -107,7 +107,7 @@ public class SteeringAgent : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Sets the direction of the triangle to the direction it is moving in to give the illusion it is turning. Trying taking out the function
+	/// Sets the direction of the triangle to the direction it is moving in to give the illusion it is turning. Try taking out the function
 	/// call in Update() to see what happens
 	/// </summary>
 	protected virtual void UpdateDirection()
