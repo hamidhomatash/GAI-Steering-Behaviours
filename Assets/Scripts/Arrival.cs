@@ -12,7 +12,13 @@ public class Arrival : SteeringBehaviour
 
 	public override Vector3 UpdateBehaviour(SteeringAgent steeringAgent)
 	{
-		// Implement Me!
+		//Implement Me
 		return steeringVelocity;
+	}
+
+	public override void DebugDraw(SteeringAgent steeringAgent)
+	{
+		DebugDrawCircle("DebugCircle " + GetType().Name, Helper.GetMousePosition(), arrivalRadius, Color.magenta);
+		base.DebugDraw(steeringAgent);
 	}
 }

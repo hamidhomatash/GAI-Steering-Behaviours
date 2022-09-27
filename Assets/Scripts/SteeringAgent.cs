@@ -3,39 +3,67 @@ using UnityEngine;
 
 public class SteeringAgent : MonoBehaviour
 {
+	protected const float DefaultUpdateTimeInSecondsForAI = 0.1f;
+
+	/// <summary>
+	/// Adjusts the frequency time in seconds of when the AI will  updates its logic
+	/// </summary>
+	[SerializeField]
+	[Range(0.005f, 5.0f)]
+	protected float maxUpdateTimeInSecondsForAI = DefaultUpdateTimeInSecondsForAI;
+
 	/// <summary>
 	/// Returns the maximum speed the agent can have
 	/// NOTE: [field: SerializeField] exposes a C# property to Unity's inspector which is useful to toggle at runtime
 	/// </summary>
 	[field: SerializeField]
-	public float MaxSpeed { get; protected set; } = 400.0f;
+	public float MaxCurrentSpeed { get; protected set; } = 400.0f;
 
 	/// <summary>
-	/// Returns the maximum steering amount that can be applied
+	/// Returns the maximum steering speed that will be applied to the steering velocity
 	/// NOTE: [field: SerializeField] exposes a C# property to Unity's inspector which is useful to toggle at runtime
 	/// </summary>
 	[field: SerializeField]
-	public float MaxSteering { get; protected set; } = 100.0f;
+	public float MaxSteeringSpeed { get; protected set; } = 100.0f;
 
 	/// <summary>
 	/// Returns the current velocity of the Agent
-	/// NOTE: [field: SerializeField] exposes a C# property to Unity's inspector which is useful to toggle at runtime
 	/// </summary>
 	public Vector3 CurrentVelocity	{ get; protected set; }
+
+	/// <summary>
+	/// Returns the steering velocity of the Agent
+	/// </summary>
+	public Vector3 SteeringVelocity { get; protected set; }
 
 	/// <summary>
 	/// Stores a list of all steering behaviours that are on a SteeringAgent GameObject, regardless if they are enabled or not
 	/// </summary>
 	private List<SteeringBehaviour> steeringBehvaiours = new List<SteeringBehaviour>();
 
+
+	private float updateTimeInSecondsForAI = DefaultUpdateTimeInSecondsForAI;
+
 	/// <summary>
 	/// Called once per frame
 	/// </summary>
 	private void Update()
 	{
-		CooperativeArbitration();
+		updateTimeInSecondsForAI += Time.deltaTime;
+		if(updateTimeInSecondsForAI >= maxUpdateTimeInSecondsForAI)
+		{
+			updateTimeInSecondsForAI %= maxUpdateTimeInSecondsForAI;
+			CooperativeArbitration();
+		}
+
 		UpdatePosition();
 		UpdateDirection();
+
+		// Show debug lines in scene view
+		foreach (SteeringBehaviour currentBehaviour in steeringBehvaiours)
+		{
+			currentBehaviour.DebugDraw(this);
+		}
 	}
 
 	/// <summary>
@@ -51,26 +79,16 @@ public class SteeringAgent : MonoBehaviour
 	/// </summary>
 	protected virtual void CooperativeArbitration()
 	{
-		Vector3 steeringVelocity = Vector3.zero;
+		SteeringVelocity = Vector3.zero;
 		
 		GetComponents<SteeringBehaviour>(steeringBehvaiours);
 		foreach (SteeringBehaviour currentBehaviour in steeringBehvaiours)
 		{
 			if(currentBehaviour.enabled)
 			{
-				steeringVelocity += currentBehaviour.UpdateBehaviour(this);
-
-				// Show debug lines in scene view
-				if (currentBehaviour.ShowDebugLines)
-				{
-					currentBehaviour.DebugDraw(this);
-				}
+				SteeringVelocity += currentBehaviour.UpdateBehaviour(this);
 			}
 		}
-
-		// Set final velocity
-		CurrentVelocity += Helper.LimitVector(steeringVelocity, MaxSteering);
-		CurrentVelocity = Helper.LimitVector(CurrentVelocity, MaxSpeed);
 	}
 
 	/// <summary>
@@ -78,9 +96,18 @@ public class SteeringAgent : MonoBehaviour
 	/// </summary>
 	protected virtual void UpdatePosition()
 	{
+		// Limit steering velocity to supplied maximum so it can be used to adjust current velocity. Ensure to subtract this limnited
+		// amount from the current value of the steering velocity so that it decreases as over multiple game frames to reach the target
+		var limitedSteeringVelocity = Helper.LimitVector(SteeringVelocity, MaxSteeringSpeed * Time.deltaTime);
+		SteeringVelocity -= limitedSteeringVelocity;
+
+		// Set final velocity
+		CurrentVelocity += limitedSteeringVelocity;
+		CurrentVelocity = Helper.LimitVector(CurrentVelocity, MaxCurrentSpeed);
+
 		transform.position += CurrentVelocity * Time.deltaTime;
 
-		// The code below is just to wrap the screen for the agent like in Asteroids for example
+		// The code below is just to wrap the screen for the agent os if if goes off one side it returns on the other (like in the game Asteroids)
 		Vector3 position = transform.position;
 		Vector3 viewportPosition = Camera.main.WorldToViewportPoint(position);
 

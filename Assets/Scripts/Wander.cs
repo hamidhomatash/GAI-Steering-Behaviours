@@ -18,9 +18,23 @@ public class Wander : SteeringBehaviour
 	[SerializeField]
     protected float circleDistance = 250.0f;
 
+	protected override void Start()
+	{
+		base.Start();
+
+		// Use for initialisation
+	}
+
 	public override Vector3 UpdateBehaviour(SteeringAgent steeringAgent)
 	{
-		// Implement Me!
+		// Implement me!
 		return steeringVelocity;
+	}
+
+	public override void DebugDraw(SteeringAgent steeringAgent)
+	{
+		// Look at the arrival steering behaviour to see what you might want to draw and where to help with debugging
+
+		base.DebugDraw(steeringAgent);
 	}
 }

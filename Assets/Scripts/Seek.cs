@@ -8,7 +8,7 @@ public class Seek : SteeringBehaviour
 		Vector3 targetPosition = Helper.GetMousePosition();
 
 		// Get the desired velocity for seek and limit to maxSpeed
-		desiredVelocity = Vector3.Normalize(targetPosition - transform.position) * steeringAgent.MaxSpeed;
+		desiredVelocity = Vector3.Normalize(targetPosition - transform.position) * steeringAgent.MaxCurrentSpeed;
 
 		// Calculate steering velocity
 		steeringVelocity = desiredVelocity - steeringAgent.CurrentVelocity;
