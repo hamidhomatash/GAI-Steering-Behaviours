@@ -41,8 +41,10 @@ public class SteeringAgent : MonoBehaviour
 	/// </summary>
 	private List<SteeringBehaviour> steeringBehvaiours = new List<SteeringBehaviour>();
 
-
-	private float updateTimeInSecondsForAI = DefaultUpdateTimeInSecondsForAI;
+	/// <summary>
+	/// Tracks how many seconds have elapsed since last CooperativeArbitration function has run
+	/// </summary>
+	private float updateTimeInSecondsForAI;
 
 	/// <summary>
 	/// Called once per frame
@@ -50,9 +52,9 @@ public class SteeringAgent : MonoBehaviour
 	private void Update()
 	{
 		updateTimeInSecondsForAI += Time.deltaTime;
-		if(updateTimeInSecondsForAI >= maxUpdateTimeInSecondsForAI)
+		while (updateTimeInSecondsForAI >= maxUpdateTimeInSecondsForAI)
 		{
-			updateTimeInSecondsForAI %= maxUpdateTimeInSecondsForAI;
+			updateTimeInSecondsForAI -= maxUpdateTimeInSecondsForAI;
 			CooperativeArbitration();
 		}
 
