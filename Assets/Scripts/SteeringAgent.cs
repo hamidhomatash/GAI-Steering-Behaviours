@@ -41,8 +41,10 @@ public class SteeringAgent : MonoBehaviour
 	/// </summary>
 	private List<SteeringBehaviour> steeringBehvaiours = new List<SteeringBehaviour>();
 
-
-	private float updateTimeInSecondsForAI = DefaultUpdateTimeInSecondsForAI;
+	/// <summary>
+	/// Tracks how many seconds have elapsed since last CooperativeArbitration function has run
+	/// </summary>
+	private float updateTimeInSecondsForAI;
 
 	/// <summary>
 	/// Called once per frame
@@ -50,9 +52,9 @@ public class SteeringAgent : MonoBehaviour
 	private void Update()
 	{
 		updateTimeInSecondsForAI += Time.deltaTime;
-		if(updateTimeInSecondsForAI >= maxUpdateTimeInSecondsForAI)
+		while (updateTimeInSecondsForAI >= maxUpdateTimeInSecondsForAI)
 		{
-			updateTimeInSecondsForAI %= maxUpdateTimeInSecondsForAI;
+			updateTimeInSecondsForAI -= maxUpdateTimeInSecondsForAI;
 			CooperativeArbitration();
 		}
 
@@ -145,4 +147,50 @@ public class SteeringAgent : MonoBehaviour
 			transform.up = Vector3.Normalize(new Vector3(CurrentVelocity.x, CurrentVelocity.y, 0.0f));
 		}
 	}
+
+	#region UI code that should not be in starter example
+
+	public float MaxUpdateTimeInSecondsForAI { get => maxUpdateTimeInSecondsForAI; }
+
+	public void SetAITime(float time)
+	{
+		maxUpdateTimeInSecondsForAI = time;
+	}
+
+	public void SetMaxSteeringSpeed(float speed)
+	{
+		MaxSteeringSpeed = speed;
+	}
+
+	public void SetMaxCurrentSpeed(float speed)
+	{
+		MaxCurrentSpeed = speed;
+	}
+
+	public bool ShowDebug
+	{
+		get
+		{
+			GetComponents<SteeringBehaviour>(steeringBehvaiours);
+			foreach (SteeringBehaviour currentBehaviour in steeringBehvaiours)
+			{
+				if(currentBehaviour.ShowDebugLines)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		set
+		{
+			GetComponents<SteeringBehaviour>(steeringBehvaiours);
+			foreach (SteeringBehaviour currentBehaviour in steeringBehvaiours)
+			{
+				currentBehaviour.ShowDebugLines = value;
+			}
+		}
+	}
+	#endregion
 }
