@@ -104,12 +104,11 @@ public abstract class SteeringBehaviour : MonoBehaviour
 		LineRenderer lineRenderer;
 		if (debugTransform == null)
 		{
-			var debugCircle = new GameObject();
-			debugCircle.name = name;
+			var debugCircle = new GameObject(name);
 			debugCircle.transform.SetParent(transform, false);
-			lineRenderer = debugCircle.AddComponent<LineRenderer>();
-			lineRenderer.material = Instantiate(Resources.Load<Material>("DebugLineRendererMaterial"));
 
+			lineRenderer = debugCircle.AddComponent<LineRenderer>();
+			lineRenderer.material.shader = Shader.Find("Sprites/Default");
 			lineRenderer.startWidth = 4.0f;
 			lineRenderer.endWidth = 4.0f;
 		}
